@@ -1,0 +1,18 @@
+[package]
+name = "dex-subintent"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "dex-subintent"
+
+[dependencies]
+radix-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c3aa4337" }
+radix-common-derive = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c3aa4337" }
+radix-transactions = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c3aa4337" }
+tokio = { version = "1.32.0", features = ["full"] }
+rand = "0.8.5"
+chrono = { version = "0.4.26" }
+anthic-subintents = { git = "https://github.com/anthic-io/anthic-sdk" }
+anthic-client = { git = "https://github.com/anthic-io/anthic-sdk" }
+anthic-model = { git = "https://github.com/anthic-io/anthic-sdk" }
