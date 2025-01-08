@@ -11,12 +11,14 @@ This system functions as an autonomous trading platform, utilizing multiple AI a
 The system is built on two primary data providers:
 
 Jupiter Protocol provides:
+
 - Real-time token pricing
 - Order book depth analysis
 - Price impact calculations
 - Historical price data
 
 Helius delivers:
+
 - Comprehensive token metrics
 - Transaction monitoring
 - Holder statistics
@@ -71,11 +73,12 @@ OPENAI_API_KEY=your_openai_api_key
 Launch the trading system with specific parameters:
 
 ```bash
-python src/agents.py --trading_pairs SOL BONK JUP --initial_capital 10000 --show_reasoning
+python src/agents.py --pairs SOL BONK JUP --capital 10000 --show-reasoning
 python src/agents.py --capital 10000 --pairs SOL BONK --risk 0.7 --dry-run --interval 60
 ```
 
 Command line parameters include:
+
 - trading_pairs: Tokens to include in trading strategy
 - initial_capital: Starting capital in USDC
 - show_reasoning: Enable detailed analysis logging
@@ -122,6 +125,7 @@ crypto-trading-system/
 ## Security Considerations
 
 Implement these security measures:
+
 - Store API keys in secure environment variables
 - Set appropriate position limits
 - Monitor trading volumes against liquidity
@@ -131,6 +135,7 @@ Implement these security measures:
 ## Risk Management
 
 The system incorporates several risk control measures:
+
 - Dynamic position sizing based on liquidity
 - Slippage protection mechanisms
 - Portfolio correlation analysis
@@ -139,10 +144,11 @@ The system incorporates several risk control measures:
 ## Support and Maintenance
 
 For technical support:
+
 - Submit issues through GitHub
-- Consult API documentation: 
-  - Jupiter: https://station.jup.ag/docs
-  - Helius: https://docs.helius.dev/
+- Consult API documentation:
+  - Jupiter: <https://station.jup.ag/docs>
+  - Helius: <https://docs.helius.dev/>
 
 ## Legal Considerations
 
@@ -151,12 +157,13 @@ This software is provided for educational purposes only. Cryptocurrency trading 
 ## Contact Information
 
 For technical queries:
-- GitHub Issues
 
+- GitHub Issues
 
 ## Acknowledgments
 
 Special thanks to:
+
 - Jupiter Protocol for comprehensive pricing infrastructure
 - Helius for robust blockchain data services
 - The Solana Foundation for blockchain support
@@ -164,6 +171,7 @@ Special thanks to:
 ## Future Development
 
 Planned enhancements include:
+
 - Additional technical indicators
 - Enhanced risk management features
 - Expanded portfolio optimization tools
