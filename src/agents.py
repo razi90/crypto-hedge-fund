@@ -4,6 +4,7 @@ import argparse
 import asyncio
 from datetime import datetime, timedelta
 from typing import Annotated, Any, Dict, Sequence, TypedDict, List, Tuple
+import logging
 
 # Add the src directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -18,6 +19,8 @@ from langgraph.graph import END, StateGraph
 from src.tools import calculate_bollinger_bands, calculate_intrinsic_value, calculate_macd, calculate_obv, calculate_rsi, search_line_items, get_financial_metrics, get_insider_trades, get_market_cap, get_prices, prices_to_df
 from src.agents.base import BaseAgent
 
+logger = logging.getLogger(__name__)
+
 class TradingAgent(BaseAgent):
     def __init__(self, capital: float, trading_pairs: List[str], risk_factor: float, dry_run: bool, interval: int, show_reasoning: bool):
         super().__init__()  # Initialize the base agent with LLM capabilities
@@ -31,58 +34,48 @@ class TradingAgent(BaseAgent):
     async def run(self):
         print(f"Starting trading agent with {self.capital} USDC")
 
+        # Configure analysis interval (in seconds)
+        ANALYSIS_INTERVAL = 60  # Analyze every minute
+
         while True:
-            # Get market state for all trading pairs
-            market_state = {}
-            for token in self.trading_pairs:
-                # Get current time range
+            try:
+                # Set time range for analysis
                 end_time = datetime.now()
                 start_time = end_time - timedelta(hours=24)
 
-                try:
-                    # Get current metrics
-                    metrics = await get_prices(
-                        token,
-                        start_date=start_time,
-                        end_date=end_time
-                    )
+                # Analyze market for all trading pairs
+                analysis_result = await self.analyze_market(
+                    self.trading_pairs,
+                    start_date=start_time,
+                    end_date=end_time
+                )
 
-                    # Get lookback data
-                    lookback_data = await get_prices(
-                        token,
-                        start_date=start_time,
-                        end_date=end_time
-                    )
+                # Generate potential trades based on analysis
+                if 'trades' in analysis_result:
+                    for trade in analysis_result['trades']:
+                        try:
+                            # Execute trades that meet confidence threshold
+                            if trade['confidence'] > 0.7:  # Configurable threshold
+                                result = await self.execute_trades([trade])
+                                logger.info(f"Trade executed: {result}")
 
-                    market_state[token] = {
-                        "price": metrics.price,
-                        "volume": metrics.volume,
-                        "liquidity": metrics.liquidity,
-                        "history": lookback_data
-                    }
-                except Exception as e:
-                    print(f"Error getting data for {token}: {e}")
-                    continue
+                                # Update portfolio after successful trade
+                                if result.get(trade['token'], {}).get('success'):
+                                    self.update_portfolio(trade, result[trade['token']])
+                        except Exception as e:
+                            logger.error(f"Error executing trade: {e}")
 
-            # Current portfolio state
-            portfolio = {
-                "cash": self.capital,
-                "tokens": {pair: 0 for pair in self.trading_pairs}  # You'll need to track actual balances
-            }
+                # Log analysis results
+                logger.info(f"Market Analysis: {analysis_result.get('analysis', '')}")
+                logger.info(f"Current Portfolio: {self.portfolio}")
 
-            # Get trading decisions
-            decisions = await self.generate_trading_signals(
-                market_state=market_state,
-                portfolio=portfolio
-            )
+                # Wait for next analysis interval
+                print(f"Waiting {ANALYSIS_INTERVAL} seconds until next analysis...")
+                await asyncio.sleep(ANALYSIS_INTERVAL)
 
-            # Execute trades (if not dry run)
-            if not self.dry_run:
-                for token, decision in decisions.items():
-                    print(f"Would execute: {decision['action']} {decision['quantity']} {token}")
-                    # TODO: Implement actual trade execution
-
-            await asyncio.sleep(self.interval)
+            except Exception as e:
+                logger.error(f"Error in main loop: {e}")
+                await asyncio.sleep(5)  # Wait a bit before retrying on error
 
     async def generate_trading_signals(self, market_state: Dict, portfolio: Dict) -> Dict:
         """Generate trading signals based on market state and LLM analysis."""

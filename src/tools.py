@@ -350,8 +350,8 @@ class PriceMetrics(NamedTuple):
     liquidity: float
 
 async def get_prices(token: str, start_date: datetime, end_date: datetime) -> PriceMetrics:
-    """Get price metrics for a token."""
-    client = BinanceClient()  # You might want to make this a singleton or pass API credentials
+    """Get pure price metrics for a token."""
+    client = BinanceClient()
 
     try:
         # Get current price and 24h stats
@@ -361,7 +361,7 @@ async def get_prices(token: str, start_date: datetime, end_date: datetime) -> Pr
         return PriceMetrics(
             price=stats['last_price'],
             volume=stats['volume'],
-            liquidity=sum(float(bid[0]) * float(bid[1]) for bid in depth['bids'][:10])  # Simple liquidity measure
+            liquidity=sum(float(bid[0]) * float(bid[1]) for bid in depth['bids'][:10])
         )
     except Exception as e:
         print(f"Error fetching price data for {token}: {e}")
