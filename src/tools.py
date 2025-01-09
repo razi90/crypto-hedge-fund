@@ -1,7 +1,7 @@
 # src/tools.py
 import os
 import logging
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, NamedTuple
 from dataclasses import dataclass
 import aiohttp
 import pandas as pd
@@ -9,6 +9,8 @@ import numpy as np
 from datetime import datetime, timedelta
 from executors.jupiter_client import JupiterClient
 from typing import Tuple
+from clients.binance_client import BinanceClient
+
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -342,11 +344,28 @@ def get_market_cap(ticker: str) -> float:
     # Placeholder implementation
     return 1000000000.0
 
-def get_prices(ticker: str, start_date: str, end_date: str) -> List[Dict]:
-    """Get historical prices for a given ticker."""
-    # Placeholder implementation
-    dates = pd.date_range(start=start_date, end=end_date, freq='D')
-    return [{"date": date.strftime('%Y-%m-%d'), "close": 100.0, "volume": 1000} for date in dates]
+class PriceMetrics(NamedTuple):
+    price: float
+    volume: float
+    liquidity: float
+
+async def get_prices(token: str, start_date: datetime, end_date: datetime) -> PriceMetrics:
+    """Get price metrics for a token."""
+    client = BinanceClient()  # You might want to make this a singleton or pass API credentials
+
+    try:
+        # Get current price and 24h stats
+        stats = await client.get_24h_stats(token)
+        depth = await client.get_market_depth(token)
+
+        return PriceMetrics(
+            price=stats['last_price'],
+            volume=stats['volume'],
+            liquidity=sum(float(bid[0]) * float(bid[1]) for bid in depth['bids'][:10])  # Simple liquidity measure
+        )
+    except Exception as e:
+        print(f"Error fetching price data for {token}: {e}")
+        raise
 
 def prices_to_df(prices: List[Dict]) -> pd.DataFrame:
     """Convert list of price dictionaries to DataFrame."""

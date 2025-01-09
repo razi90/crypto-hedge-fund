@@ -79,9 +79,9 @@ python src/agents.py --capital 10000 --pairs SOL BONK --risk 0.7 --dry-run --int
 
 Command line parameters include:
 
-- trading_pairs: Tokens to include in trading strategy
-- initial_capital: Starting capital in USDC
-- show_reasoning: Enable detailed analysis logging
+- pairs: Tokens to include in trading strategy
+- capital: Starting capital in USDC
+- show-reasoning: Enable detailed analysis logging
 
 ## Data Analysis Tools
 

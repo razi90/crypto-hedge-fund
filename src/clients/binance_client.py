@@ -2,8 +2,11 @@ from binance.client import Client
 from binance.exceptions import BinanceAPIException
 import logging
 from typing import Dict, Optional
+import urllib3
 
 logger = logging.getLogger(__name__)
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class BinanceClient:
     """Binance API client wrapper."""
