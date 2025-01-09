@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from .base import BaseAgent
 from tools import CryptoDataTools, get_prices
 from executors.jupiter_client import JupiterClient
+from sentiment.market_sentiment import MarketSentimentAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,8 @@ class HedgeFundAgent(BaseAgent):
         initial_capital: float,
         trading_pairs: List[str],
         risk_tolerance: float = 0.7,
-        llm_config: Optional[Dict] = None
+        llm_config: Optional[Dict] = None,
+        sentiment_config: Optional[Dict] = None
     ):
         super().__init__(llm_config)
         self.initial_capital = initial_capital
@@ -36,6 +38,7 @@ class HedgeFundAgent(BaseAgent):
         # Initialize components
         self.data_tools = CryptoDataTools()
         self.jupiter = JupiterClient()
+        self.sentiment_analyzer = MarketSentimentAnalyzer(sentiment_config or {})
 
         # Portfolio state
         self.portfolio = {
